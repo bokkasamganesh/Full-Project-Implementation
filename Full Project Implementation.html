@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Project</title>
+  <style>
+    * {box-sizing: border-box;}
+    body {margin: 0; font-family: Arial, sans-serif;}
+    header, footer {background: #333; color: white; text-align: center; padding: 1rem;}
+    nav a {margin: 0 1rem; color: white; text-decoration: none;}
+    main {padding: 1rem;}
+    section {margin-bottom: 2rem;}
+    .projects, .products, .todo {display: grid; gap: 1rem;}
+    .project, .product, .task {border: 1px solid #ccc; padding: 1rem;}
+    .filters {display: flex; gap: 1rem; margin-bottom: 1rem;}
+    @media (min-width: 768px) {
+      .projects, .products {grid-template-columns: repeat(3, 1fr);}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>My Portfolio</h1>
+    <nav>
+      <a href="#about">About</a>
+      <a href="#projects">Projects</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="about">
+      <h2>About Me</h2>
+      <p>I am a passionate web developer skilled in HTML, CSS, and JavaScript.</p>
+    </section>
+
+    <section id="projects" class="projects">
+      <h2>Projects</h2>
+      <div class="project">Responsive Portfolio</div>
+      <div class="project">To-Do List with Storage</div>
+      <div class="project">Product Filter Page</div>
+    </section>
+
+    <section class="todo">
+      <h2>To-Do List (Saved)</h2>
+      <input type="text" id="todoInput" placeholder="New Task">
+      <button onclick="addTask()">Add</button>
+      <ul id="todoList"></ul>
+    </section>
+
+    <section class="products">
+      <h2>Products</h2>
+      <div class="filters">
+        <select id="category" onchange="filterProducts()">
+          <option value="all">All</option>
+          <option value="tech">Tech</option>
+          <option value="fashion">Fashion</option>
+        </select>
+        <select id="sort" onchange="sortProducts()">
+          <option value="">Sort</option>
+          <option value="asc">Price Low to High</option>
+          <option value="desc">Price High to Low</option>
+        </select>
+      </div>
+      <div id="productList" class="products"></div>
+    </section>
+
+    <section id="contact">
+      <h2>Contact</h2>
+      <p>Email: contact@example.com</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 My Portfolio</p>
+  </footer>
+
+  <script>
+    // To-Do List with localStorage
+    const todoList = document.getElementById('todoList');
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    tasks.forEach(task => addTaskToDOM(task));
+
+    function addTask() {
+      const input = document.getElementById('todoInput');
+      const task = input.value.trim();
+      if (task) {
+        tasks.push(task);
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        addTaskToDOM(task);
+        input.value = '';
+      }
+    }
+
+    function addTaskToDOM(task) {
+      const li = document.createElement('li');
+      li.textContent = task;
+      li.className = 'task';
+      li.onclick = () => {
+        tasks = tasks.filter(t => t !== task);
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        li.remove();
+      };
+      todoList.appendChild(li);
+    }
+
+    // Product filter and sort
+    const allProducts = [
+      { name: "Phone", category: "tech", price: 500 },
+      { name: "Shirt", category: "fashion", price: 50 },
+      { name: "Laptop", category: "tech", price: 1200 },
+      { name: "Shoes", category: "fashion", price: 80 },
+    ];
+
+    function renderProducts(products) {
+      const list = document.getElementById('productList');
+      list.innerHTML = '';
+      products.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'product';
+        div.textContent = `${p.name} - $${p.price}`;
+        list.appendChild(div);
+      });
+    }
+
+    function filterProducts() {
+      const category = document.getElementById('category').value;
+      let filtered = allProducts.filter(p => category === 'all' || p.category === category);
+      renderProducts(filtered);
+    }
+
+    function sortProducts() {
+      const sort = document.getElementById('sort').value;
+      let products = Array.from(document.querySelectorAll('.product'));
+      let sorted = [...allProducts];
+      if (sort === 'asc') sorted.sort((a, b) => a.price - b.price);
+      else if (sort === 'desc') sorted.sort((a, b) => b.price - a.price);
+      renderProducts(sorted);
+    }
+
+    renderProducts(allProducts);
+  </script>
+</body>
+</html>
